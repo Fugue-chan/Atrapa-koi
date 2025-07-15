@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atrapa Koi 🎏</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #d4f1f9;
+      overflow: hidden;
+    }
+    #pantalla-inicio, #pantalla-juego, #pantalla-fin {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .active {
+      display: flex;
+    }
+    #koi {
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle at center, orange, red);
+      border-radius: 50%;
+      position: absolute;
+      cursor: pointer;
+    }
+    #info {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 16px;
+      background: rgba(255,255,255,0.7);
+      padding: 10px;
+      border-radius: 8px;
+    }
+    button, input {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="pantalla-inicio" class="active">
+    <h1>🎏 Atrapa Koi</h1>
+    <input type="text" id="nombreJugador" placeholder="Tu apodo..." />
+    <button onclick="iniciarJuego()">Comenzar</button>
+  </div>
+
+  <div id="pantalla-juego">
+    <div id="info">
+      <p id="jugador"></p>
+      <p id="intentos">Intentos: 5</p>
+      <p id="capturas">Capturas: 0</p>
+      <p id="estado"></p>
+    </div>
+    <div id="koi"></div>
+  </div>
+
+  <div id="pantalla-fin">
+    <h2>🎉 Fin del juego</h2>
+    <p id="resultadoFinal"></p>
+    <button onclick="reiniciarJuego()">Jugar de nuevo</button>
+  </div>
+
+  <script>
+    const koi = document.getElementById('koi');
+    const estado = document.getElementById('estado');
+    let intentos, capturas, redRota, nombre;
+
+    function iniciarJuego() {
+      nombre = document.getElementById('nombreJugador').value.trim();
+      if (!nombre) return alert("Pon tu apodo para empezar.");
+      intentos = 5; capturas = 0; redRota = false;
+      document.getElementById('pantalla-inicio').classList.remove('active');
+      document.getElementById('pantalla-juego').classList.add('active');
+      document.getElementById('jugador').innerText = `Jugador: ${nombre}`;
+      actualizarUI(); moverKoi();
+    }
+
+    function moverKoi() {
+      const x = Math.random() * (window.innerWidth - 100);
+      const y = Math.random() * (window.innerHeight - 100);
+      koi.style.left = `${x}px`; koi.style.top = `${y}px`;
+    }
+
+    koi.addEventListener('click', () => {
+      if (intentos === 0 || redRota) return;
+      intentos--;
+      if (Math.random() < 0.7) {
+        capturas++; estado.innerText = "¡Captura exitosa!";
+      } else {
+        if (Math.random() < 0.4) {
+          redRota = true;
+          estado.innerText = "¡La red se rompió!";
+          return terminarJuego();
+        } else {
+          estado.innerText = "Fallaste, pero la red resiste.";
+        }
+      }
+      actualizarUI();
+      if (intentos === 0) terminarJuego();
+      else moverKoi();
+    });
+
+    function actualizarUI() {
+      document.getElementById('intentos').innerText = `Intentos: ${intentos}`;
+      document.getElementById('capturas').innerText = `Capturas: ${capturas}`;
+    }
+
+    function terminarJuego() {
+      document.getElementById('pantalla-juego').classList.remove('active');
+      document.getElementById('pantalla-fin').classList.add('active');
+      document.getElementById('resultadoFinal').innerText = redRota
+        ? `${nombre}, tu red se rompió. Capturaste ${capturas} koi.`
+        : `${nombre}, atrapaste ${capturas} koi en ${5 - intentos} intentos.`;
+    }
+
+    function reiniciarJuego() {
+      document.getElementById('pantalla-fin').classList.remove('active');
+      document.getElementById('pantalla-inicio').classList.add('active');
+      document.getElementById('nombreJugador').value = '';
+      estado.innerText = '';
+    }
+  </script>
+  
+</body>
+</html>
